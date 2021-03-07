@@ -1,0 +1,214 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Rekaman Baru {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+        <div class="row" style="margin-top: -7%;">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header card-header-info">
+                  <h3 class="card-title">Rekaman Audio Per Ayat</h3>
+                </div>
+                <div class="card-body">
+                  <div style="margin-top: 3%;">
+                    <form>
+                      <div class="row" style="margin-left: 5%;">
+                        <div class="col-md-1">
+                          <div class="form-group">
+                            <label class="bmd-label-floating text-center">No. Surat</label>
+                            <input id="no_surat" type="text" class="form-control text-center" value="{{ no_surat }}">
+                          </div>
+                        </div>
+                        <div class="col-md-2">
+                          <div class="form-group">
+                            <label class="bmd-label-floating text-center">Nama Surat</label>
+                            <input id="surat" type="text" class="form-control text-center" value="{{ nama_surat }}" readonly>
+                          </div>
+                        </div>
+                        <div class="col-md-1">
+                          <div class="form-group">
+                            <label class="bmd-label-floating text-center">Ayat</label>
+                            <input id="ayat" type="text" class="form-control text-center" value="{{ no_ayat }}">
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                    <div style="margin-top: -5%; margin-left: 50%;">
+                      <button id="pilih" type="button" rel="tooltip" class="btn btn-info btn-round">
+                        <i class="material-icons">file_download_done</i> Pilih</button>
+                      <button id="acak" type="button" rel="tooltip" class="btn btn-info btn-round">
+                        <i class="material-icons">swap_horiz</i> Acak</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-12" style="margin-top: -3%;">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <button id="previous" type="button" rel="tooltip" class="btn btn-default btn-round" style="margin-left: 40%;">
+                      <i class="material-icons">west</i></button>
+                    <div data-role="controls" style="margin-top: -4.8%; margin-left: 47.5%;">
+                      <button id="rekam" type="button" rel="tooltip" class="btn btn-success btn-round">
+                        <i id="icon-rekam" class="material-icons">mic_none</i> Rekam</button>
+                    </div>
+                    <div data-role="recordings"></div>
+                    <button id="next" type="button" rel="tooltip" class="btn btn-default btn-round" style="margin-top: -6.5%; margin-left: 59.2%;">
+                      <i class="material-icons">east</i></button>
+                  </div>
+                </div>
+                <div>
+                  <img id="gambar_ayat" src="{{ file_img }}" style="width: 75vw; min-width: 350px;">
+                </div>
+                <div class="card-body">
+                  <div id="typography">
+                    <div class="row">
+                      <div class="tim-typo" style="margin-left: 10%; margin-right: 5%;">
+                        <p id="arti">{{ terjemah }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+        </div>
+
+
+
+{% endblock content %}
+
+
+
+
+
+
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="/static/assets/js/recorder.js"></script>
+<script src="/static/assets/js/get_wav.js"></script>
+<script>
+// random int generator
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
+// from django database
+var max_ayat = {{ max_ayat }};
+var list_nama_surat = {{ list_nama_surat | safe }};
+var arti = {{ arti | safe }};
+
+// get ayat randomly
+$( "#acak" ).click(function() {
+    no_surat = getRandomInt(1, 115);
+    ayat = getRandomInt(1, max_ayat[no_surat-1]+1);
+    document.getElementById("no_surat").value = no_surat;
+    document.getElementById("surat").value = list_nama_surat[no_surat-1];
+    document.getElementById("ayat").value = ayat;
+    document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_' + ayat +'.png';
+    terjemah();
+});
+
+// get ayat based on the chosen values
+$( "#pilih" ).click(function() {
+    no_surat = document.getElementById("no_surat").value;
+    nama_surat = list_nama_surat[parseInt(no_surat)-1];
+    ayat = document.getElementById("ayat").value;
+    ayat_terakhir = max_ayat[parseInt(no_surat)-1];
+    if (ayat > ayat_terakhir) {
+        alert('jumlah ayat pada surat ' + nama_surat + ' hanya ' + ayat_terakhir);
+        ayat = ayat_terakhir;
+        document.getElementById("ayat").value = ayat;
+    }
+    if (parseInt(no_surat) < 1 || parseInt(no_surat) > 114) {
+        alert('surat tidak ditemukan');
+        document.getElementById("no_surat").value = 1;
+        document.getElementById("ayat").value = 1;
+        nama_surat = list_nama_surat[parseInt(1)-1];
+        no_surat = 1;
+        ayat = 1;
+    }
+    document.getElementById("surat").value = nama_surat;
+    document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_' + ayat +'.png';
+    terjemah();
+});
+
+// get next ayat
+$( "#next" ).click(function() {
+    no_surat = document.getElementById("no_surat").value;
+    ayat = document.getElementById("ayat").value;
+    if (ayat == max_ayat[parseInt(no_surat)-1]) {
+        no_surat = parseInt(no_surat) + 1;
+        ayat = 1;
+    }
+    else {
+        ayat = parseInt(ayat) + 1;
+    }
+    if (no_surat == 115) {
+        alert('tidak ada ayat');
+    }
+    else {
+        document.getElementById("no_surat").value = no_surat;
+        document.getElementById("surat").value = list_nama_surat[no_surat-1];
+        document.getElementById("ayat").value = ayat;
+        document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_' + ayat +'.png';
+    }
+    terjemah();
+});
+
+// get previous ayat
+$( "#previous" ).click(function() {
+    no_surat = document.getElementById("no_surat").value;
+    ayat = document.getElementById("ayat").value;
+    if (ayat == 1) {
+        no_surat = parseInt(no_surat) - 1;
+        ayat = max_ayat[parseInt(no_surat)-1];
+    }
+    else {
+        ayat = parseInt(ayat) - 1;
+    }
+    if (no_surat == 0) {
+        alert('tidak ada ayat');
+    }
+    else {
+        document.getElementById("no_surat").value = no_surat;
+        document.getElementById("surat").value = list_nama_surat[no_surat-1];
+        document.getElementById("ayat").value = ayat;
+        document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_' + ayat +'.png';
+    }
+    terjemah();
+});
+
+// get translation
+function terjemah() {
+    no_surat = document.getElementById("no_surat").value;
+    ayat = document.getElementById("ayat").value;
+    document.getElementById("arti").innerHTML = arti[no_surat + '_' + ayat] + '  (QS ' + no_surat + ' : ' + ayat + ')';
+}
+
+// .wav upload function using xhr
+function upload(blob){
+    var url = URL.createObjectURL(blob);
+    var csrftoken = getCookie('csrftoken');
+    var xhr = new XMLHttpRequest();
+    no_surat = document.getElementById("no_surat").value;
+    ayat = document.getElementById("ayat").value;
+    xhr.open('POST', "{% url 'upload' %}", true);   // url: /record/upload
+    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+    xhr.setRequestHeader("info", "{{ user.id }}" + "_" + no_surat + "_" + ayat);
+    // xhr.upload.onloadend = function() {
+    //     alert('Upload complete');
+    // };
+    xhr.send(blob);
+}
+</script>
+{% endblock javascripts %}
+

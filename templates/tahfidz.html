@@ -1,0 +1,79 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Tahfidz {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+        <div class="row" style="margin-top: -7%;">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header card-header-danger">
+                  <h3 class="card-title">Cek Hafalan Per Ayat</h3>
+                </div>
+                <div class="card-body">
+                  <div style="margin-top: 5%;">
+
+                    <div class="card-header">
+                      <div>
+                        <div data-role="controls" style="margin-top: -3%;">
+                          <button type="button" rel="tooltip" class="btn btn-success btn-round">
+                            <i id="icon-rekam" class="material-icons">mic_none</i> Rekam</button>
+                        </div>
+                        <div data-role="recordings"></div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-12" style="margin-top: -3%;">
+              <div class="card">
+                <div style="margin-top: 5%;">
+<!--                   <img id="gambar_ayat" src="{{ file_img }}" style="width: 75vw; min-width: 350px;"> -->
+                </div>
+                <div class="card-body">
+                  <div id="typography">
+                    <div class="row">
+                      <div class="tim-typo" style="margin-left: 10%; margin-right: 5%;">
+<!--                         <p id="arti">{{ terjemah }}</p> -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+        </div>
+
+
+
+{% endblock content %}
+
+
+
+
+
+
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="/static/assets/js/recorder.js"></script>
+<script src="/static/assets/js/get_wav.js"></script>
+<script>
+// from django database
+var list_nama_surat = {{ list_nama_surat | safe }};
+var arti = {{ arti | safe }};
+// get translation
+function terjemah() {
+    no_surat = document.getElementById("no_surat").value;
+    ayat = document.getElementById("ayat").value;
+    document.getElementById("arti").innerHTML = arti[no_surat + '_' + ayat] + '  (QS ' + no_surat + ' : ' + ayat + ')';
+}
+</script>
+{% endblock javascripts %}
+
