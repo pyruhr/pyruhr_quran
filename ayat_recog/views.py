@@ -14,9 +14,12 @@ import json
 import io
 
 
-list_nama_surat = [i.nama_surat for i in data_surat.objects.all()]
-max_ayat = [i.total_ayat for i in data_surat.objects.all()]
-arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
+try:
+    list_nama_surat = [i.nama_surat for i in data_surat.objects.all()]
+    max_ayat = [i.total_ayat for i in data_surat.objects.all()]
+    arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
+except:
+    pass
 
 # DeepSpeech Model
 DSQ = Model('deepspeech/output_graph_imams_tusers_v2.pb')
