@@ -12,14 +12,6 @@ conda activate quran
 
 pip install -r requirements.txt
 
-### setup database
-
-python manage.py makemigrations
-
-python manage.py migrate
-
-python manage.py shell < database_quran.py
-
 ### nyalakan server
 
 python manage.py runserver
