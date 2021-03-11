@@ -106,3 +106,5 @@ def tajwid(request):
         'segment': 'tajwid',
     }     
     return render(request, 'tajwid.html', data)
+
+    
