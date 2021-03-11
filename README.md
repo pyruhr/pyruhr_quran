@@ -20,10 +20,6 @@ python manage.py migrate
 
 python manage.py shell < database_quran.py
 
-### download file ayat (PNG), dan letakkan di dalam direktori "static"
-
-https://drive.google.com/file/d/1f_UMC8UJkaK5_Hw_IQafoSLyq3JlMjBK/view?usp=sharing
-
 ### nyalakan server
 
 python manage.py runserver
