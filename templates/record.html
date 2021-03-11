@@ -196,7 +196,6 @@ function terjemah() {
 
 // .wav upload function using xhr
 function upload(blob){
-    var url = URL.createObjectURL(blob);
     var csrftoken = getCookie('csrftoken');
     var xhr = new XMLHttpRequest();
     no_surat = document.getElementById("no_surat").value;

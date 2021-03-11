@@ -62,7 +62,6 @@ function getCookie(name) {
 }
  
 
-
 // toggle record button
 $('#rekam').click(function() {
     $(this).toggleClass("btn btn-danger");
@@ -80,3 +79,5 @@ $('#rekam').click(function() {
     	stopRecording();
     }
 });
+
+

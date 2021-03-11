@@ -28,7 +28,7 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'tajwid' %}" {% if 'tajwid' == segment %} style="background-color: #ffa726;" {% endif %}>
               <i class="material-icons" {% if 'tajwid' == segment %} style="color: #FFFFFF;" {% endif %}>fact_check</i>
-              <p {% if 'tajwid' == segment %} style="color: #FFFFFF;" {% endif %}>Cek Tajwid</p>
+              <p {% if 'tajwid' == segment %} style="color: #FFFFFF;" {% endif %}>Cek Bacaan</p>
             </a>
           </li>
           {% if user.is_authenticated %}

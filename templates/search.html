@@ -19,11 +19,12 @@
                     <div class="card-header">
                       <div>
                         <div data-role="controls" style="margin-top: -3%;">
-                          <button type="button" rel="tooltip" class="btn btn-success btn-round">
+                          <button id="rekam" type="button" rel="tooltip" class="btn btn-success btn-round">
                             <i id="icon-rekam" class="material-icons">mic_none</i> Rekam</button>
                         </div>
                         <div data-role="recordings"></div>
                       </div>
+                      <p id="prediction" dir="rtl" lang="ar" style="color:#2e4053; font-size:25px; margin-top: 2%;" align="right"></p>
                     </div>
 
                   </div>
@@ -33,14 +34,16 @@
 
             <div class="col-md-12" style="margin-top: -3%;">
               <div class="card">
-                <div style="margin-top: 5%;">
-<!--                   <img id="gambar_ayat" src="{{ file_img }}" style="width: 75vw; min-width: 350px;"> -->
+                <div style="margin-left: 3%; margin-top: 2%;">
+                  <h3 id="similar" ></h3>
+                </div>
+                <div id="start-loop" style="margin-left: 3%;">
                 </div>
                 <div class="card-body">
                   <div id="typography">
                     <div class="row">
                       <div class="tim-typo" style="margin-left: 10%; margin-right: 5%;">
-<!--                         <p id="arti">{{ terjemah }}</p> -->
+                        <p id="arti"></p>
                       </div>
                     </div>
                   </div>
@@ -58,22 +61,73 @@
 
 
 
-
-
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script src="/static/assets/js/recorder.js"></script>
 <script src="/static/assets/js/get_wav.js"></script>
 <script>
-// from django database
-var list_nama_surat = {{ list_nama_surat | safe }};
-var arti = {{ arti | safe }};
-// get translation
-function terjemah() {
-    no_surat = document.getElementById("no_surat").value;
-    ayat = document.getElementById("ayat").value;
-    document.getElementById("arti").innerHTML = arti[no_surat + '_' + ayat] + '  (QS ' + no_surat + ' : ' + ayat + ')';
-}
+function upload(blob) {
+    var data = new FormData();
+    data.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+    data.append('file', blob);
+    $.ajax({
+      url : "{% url 'search' %}",
+      type: 'POST',
+      data: data,
+      contentType: false,
+      processData: false,
+      success: function(data) {
+        // reset DOM
+        let element = document.getElementById("start-loop");
+        while (element.firstChild) {
+          element.removeChild(element.firstChild);
+        }
+        document.getElementById('similar').innerHTML = "";
+        // get response data
+        result = JSON.parse(data.result);
+        var list_nama_surat = JSON.parse(data.list_nama_surat);
+        var terjemah = JSON.parse(data.arti);
+        ayat = Object.keys(result);
+        Nayat = Object.keys(result).length;
+        // if similar ayats are found
+        document.getElementById('prediction').innerHTML = data.prediction;
+        if (Nayat > 1) {
+          document.getElementById('similar').innerHTML = 'Ditemukan ' + Nayat + ' Ayat Serupa';
+        }
+        // loop over similar ayats
+        var start = document.getElementById('start-loop');
+        for ( i=0; i<Nayat; i++ ) {
+          no_surat = ayat[i].split('_')[0];
+          no_ayat = ayat[i].split('_')[1];
+          // info about ayat
+          newdiv = document.createElement('h4');
+          newdiv.style="margin-top: 5%;"
+          newdiv.innerHTML = '<strong>Q.S. ' + list_nama_surat[parseInt(no_surat)-1] + ' Ayat ' + no_ayat + '</strong>';
+          newdiv.id = "add-info"
+          start.appendChild(newdiv);
+          // info about similarity
+          newdiv = document.createElement('h4');
+          newdiv.style = "color: blue;"
+          newdiv.innerHTML = 'kecocokan: ' + Math.round(result[ayat[i]][1]*100) + '%';
+          newdiv.id = "add-info"
+          start.appendChild(newdiv);
+          // ayat image
+          newdiv = document.createElement('img');
+          newdiv.src = '/static/all_ayat/' + no_surat + '_' + no_ayat + '.png';
+          newdiv.style = "width: 65vw; min-width: 350px; margin-right: 5%;"
+          newdiv.id = "add-info"
+          start.appendChild(newdiv);
+          // ayat translation
+          newdiv = document.createElement('p');
+          newdiv.innerHTML = '<i>'+terjemah[no_surat + '_' + no_ayat] + '  (QS ' + no_surat + ' : ' + no_ayat + ')</i>';
+          newdiv.style = "font-size: 100%; margin-right: 10%; margin-left: 5%;"
+          newdiv.class = "tim-typo"
+          newdiv.id = "add-info";
+          start.appendChild(newdiv);
+        }
+      },
+    });
+} 
 </script>
 {% endblock javascripts %}
 
