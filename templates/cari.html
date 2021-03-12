@@ -14,11 +14,11 @@
                   <h3 class="card-title">Mencari Ayat</h3>
                 </div>
                 <div class="card-body">
-                  <div style="margin-top: 5%;">
+                  <div style="margin-top: 0%;">
 
                     <div class="card-header">
                       <div>
-                        <div data-role="controls" style="margin-top: -3%;">
+                        <div data-role="controls" style="margin-top: 0%;">
                           <button id="rekam" type="button" rel="tooltip" class="btn btn-success btn-round">
                             <i id="icon-rekam" class="material-icons">mic_none</i> Rekam</button>
                         </div>
@@ -71,7 +71,7 @@ function upload(blob) {
     data.append('csrfmiddlewaretoken', '{{ csrf_token }}')
     data.append('file', blob);
     $.ajax({
-      url : "{% url 'search' %}",
+      url : "{% url 'cari' %}",
       type: 'POST',
       data: data,
       contentType: false,
@@ -85,7 +85,8 @@ function upload(blob) {
         document.getElementById('similar').innerHTML = "";
         // get response data
         result = JSON.parse(data.result);
-        var list_nama_surat = JSON.parse(data.list_nama_surat);
+        var list_nama_surat_arab = JSON.parse(data.list_nama_surat_arab);
+        var list_nama_surat_indo = JSON.parse(data.list_nama_surat_indo);
         var terjemah = JSON.parse(data.arti);
         ayat = Object.keys(result);
         Nayat = Object.keys(result).length;
@@ -102,7 +103,7 @@ function upload(blob) {
           // info about ayat
           newdiv = document.createElement('h4');
           newdiv.style="margin-top: 5%;"
-          newdiv.innerHTML = '<strong>Q.S. ' + list_nama_surat[parseInt(no_surat)-1] + ' Ayat ' + no_ayat + '</strong>';
+          newdiv.innerHTML = '<strong>Q.S. ' + list_nama_surat_indo[parseInt(no_surat)-1] + ' (' + list_nama_surat_arab[parseInt(no_surat)-1] + ')' + ' Ayat ' + no_ayat + '</strong>';
           newdiv.id = "add-info"
           start.appendChild(newdiv);
           // info about similarity

@@ -12,8 +12,9 @@ class rekaman(models.Model):
 
 class data_surat(models.Model):
 	no_surat = models.IntegerField()
-	nama_surat = models.CharField(max_length=50)
-	total_ayat = models.IntegerField()
+	nama_surat_arab = models.CharField(max_length=50)
+	nama_surat_indo = models.CharField(max_length=50)
+	jumlah_ayat = models.IntegerField()
 
 class terjemah(models.Model):
 	no_surat = models.IntegerField()

@@ -103,7 +103,8 @@ function getRandomInt(min, max) {
 }
 // from django database
 var max_ayat = {{ max_ayat }};
-var list_nama_surat = {{ list_nama_surat | safe }};
+var list_nama_surat_arab = {{ list_nama_surat_arab | safe }};
+var list_nama_surat_indo = {{ list_nama_surat_indo | safe }};
 var arti = {{ arti | safe }};
 
 // get ayat randomly
@@ -111,7 +112,7 @@ $( "#acak" ).click(function() {
     no_surat = getRandomInt(1, 115);
     ayat = getRandomInt(1, max_ayat[no_surat-1]+1);
     document.getElementById("no_surat").value = no_surat;
-    document.getElementById("surat").value = list_nama_surat[no_surat-1];
+    document.getElementById("surat").value = list_nama_surat_arab[no_surat-1] + ' ' + list_nama_surat_indo[no_surat-1];
     document.getElementById("ayat").value = ayat;
     document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_' + ayat +'.png';
     terjemah();
@@ -120,7 +121,7 @@ $( "#acak" ).click(function() {
 // get ayat based on the chosen values
 $( "#pilih" ).click(function() {
     no_surat = document.getElementById("no_surat").value;
-    nama_surat = list_nama_surat[parseInt(no_surat)-1];
+    nama_surat = list_nama_surat_arab[no_surat-1] + ' ' + list_nama_surat_indo[no_surat-1];
     ayat = document.getElementById("ayat").value;
     ayat_terakhir = max_ayat[parseInt(no_surat)-1];
     if (ayat > ayat_terakhir) {
@@ -132,7 +133,7 @@ $( "#pilih" ).click(function() {
         alert('surat tidak ditemukan');
         document.getElementById("no_surat").value = 1;
         document.getElementById("ayat").value = 1;
-        nama_surat = list_nama_surat[parseInt(1)-1];
+        nama_surat = list_nama_surat_arab[no_surat-1] + ' ' + list_nama_surat_indo[no_surat-1];
         no_surat = 1;
         ayat = 1;
     }
@@ -157,7 +158,7 @@ $( "#next" ).click(function() {
     }
     else {
         document.getElementById("no_surat").value = no_surat;
-        document.getElementById("surat").value = list_nama_surat[no_surat-1];
+        document.getElementById("surat").value = list_nama_surat_arab[no_surat-1] + ' ' + list_nama_surat_indo[no_surat-1];
         document.getElementById("ayat").value = ayat;
         document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_' + ayat +'.png';
     }
@@ -180,7 +181,7 @@ $( "#previous" ).click(function() {
     }
     else {
         document.getElementById("no_surat").value = no_surat;
-        document.getElementById("surat").value = list_nama_surat[no_surat-1];
+        document.getElementById("surat").value = list_nama_surat_arab[no_surat-1] + ' ' + list_nama_surat_indo[no_surat-1];
         document.getElementById("ayat").value = ayat;
         document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_' + ayat +'.png';
     }

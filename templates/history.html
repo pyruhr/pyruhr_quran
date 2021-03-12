@@ -15,6 +15,18 @@
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
+
+<!--                     <div class="btn-group">
+                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Urutkan Berdasarkan
+                      </button>
+                      <div class="dropdown-menu" sytle="align: right">
+                        <option id="mode_ayat" class="dropdown-item" value="Ayat">Surat & Ayat</a>
+                        <option id="mode_surat" class="dropdown-item" value="Surat">Ukuran File</a>
+                        <option id="mode_surat" class="dropdown-item" value="Surat">Waktu Rekaman</a>
+                      </div>
+                    </div> -->
+
                     <table class="table">
                       <thead class=" text-info">
                         <th class="text-center">Nama Surat</th>
@@ -29,7 +41,7 @@
                       <tbody>
                         {% for e in db %}
                         <tr>
-                          <td id="nama_surat" class="text-center">{{ e.nama_surat }}</td>
+                          <td id="nama_surat" class="text-center" style="font-size: 20px">{{ e.nama_surat }}</td>
                           <td id="no_surat" class="text-center">{{ e.no_surat }}</td>
                           <td id="no_ayat" class="text-center">{{ e.no_ayat }} / {{ e.max_ayat }}</td>
                           <td class="text-center">{{ e.ukuran }} KB</td>

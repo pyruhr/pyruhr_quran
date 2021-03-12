@@ -7,7 +7,7 @@ from django.urls import path, re_path
 from . import views
 
 urlpatterns = [
-    path('search/', views.search, name='search'),
-    path('tahfidz/', views.tahfidz, name='tahfidz'),
-    path('tajwid/', views.tajwid, name='tajwid'),
+    path('cari/', views.cari, name='cari'),
+    path('hafalan/', views.hafalan, name='hafalan'),
+    path('bacaan/', views.bacaan, name='bacaan'),
 ]

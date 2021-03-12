@@ -7,28 +7,30 @@
       </div>
       <div class="sidebar-wrapper">
         <ul class="nav">
+          {% if user.is_authenticated %}
           <li class="nav-item {% if 'dashboard' == segment %} active {% endif %}">
             <a class="nav-link" href={% url 'dashboard' %}>
               <i class="material-icons">stacked_bar_chart</i>
               <p>Dashboard</p>
             </a>
           </li>
+          {% endif %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'search' %}" {% if 'search' == segment %} style="background-color: #ab47bc;" {% endif %}>
-              <i class="material-icons" {% if 'search' == segment %} style="color: #FFFFFF;" {% endif %}>manage_search</i>
-              <p {% if 'search' == segment %} style="color: #FFFFFF;" {% endif %}>Cari Ayat</p>
+            <a class="nav-link" href="{% url 'cari' %}" {% if 'cari' == segment %} style="background-color: #ab47bc;" {% endif %}>
+              <i class="material-icons" {% if 'cari' == segment %} style="color: #FFFFFF;" {% endif %}>manage_search</i>
+              <p {% if 'cari' == segment %} style="color: #FFFFFF;" {% endif %}>Cari Ayat</p>
             </a>
           </li>
           <li class="nav-item ">
-            <a class="nav-link" href="{% url 'tahfidz' %}" {% if 'tahfidz' == segment %} style="background-color: #ef5350;" {% endif %}>
-              <i class="material-icons" {% if 'tahfidz' == segment %} style="color: #FFFFFF;" {% endif %}>online_prediction</i>
-              <p {% if 'tahfidz' == segment %} style="color: #FFFFFF;" {% endif %}>Cek Hafalan</p>
+            <a class="nav-link" href="{% url 'hafalan' %}" {% if 'hafalan' == segment %} style="background-color: #ef5350;" {% endif %}>
+              <i class="material-icons" {% if 'hafalan' == segment %} style="color: #FFFFFF;" {% endif %}>online_prediction</i>
+              <p {% if 'hafalan' == segment %} style="color: #FFFFFF;" {% endif %}>Cek Hafalan</p>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'tajwid' %}" {% if 'tajwid' == segment %} style="background-color: #ffa726;" {% endif %}>
-              <i class="material-icons" {% if 'tajwid' == segment %} style="color: #FFFFFF;" {% endif %}>fact_check</i>
-              <p {% if 'tajwid' == segment %} style="color: #FFFFFF;" {% endif %}>Cek Bacaan</p>
+            <a class="nav-link" href="{% url 'bacaan' %}" {% if 'bacaan' == segment %} style="background-color: #ffa726;" {% endif %}>
+              <i class="material-icons" {% if 'bacaan' == segment %} style="color: #FFFFFF;" {% endif %}>fact_check</i>
+              <p {% if 'bacaan' == segment %} style="color: #FFFFFF;" {% endif %}>Cek Bacaan</p>
             </a>
           </li>
           {% if user.is_authenticated %}

@@ -15,12 +15,19 @@ import os
 
 
 
+try:
+    list_nama_surat_arab = [i.nama_surat_arab for i in data_surat.objects.all()]
+    list_nama_surat_indo = [i.nama_surat_indo for i in data_surat.objects.all()]
+    max_ayat = [i.jumlah_ayat for i in data_surat.objects.all()]
+    arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
+except:
+    pass
+
+
 
 @login_required(login_url="/login/")
 def history(request):
     db = rekaman.objects.filter(user=request.user.id).order_by('no_surat', 'no_ayat')
-    list_nama_surat = [i.nama_surat for i in data_surat.objects.all()]
-    max_ayat = [i.total_ayat for i in data_surat.objects.all()]
     ndb = []
     for e in db:
         tmp = {
@@ -31,7 +38,7 @@ def history(request):
             'ukuran': e.ukuran, 
             'waktu': e.waktu,
             'filepath': f'/{e.filepath}',
-            'nama_surat': list_nama_surat[e.no_surat-1],
+            'nama_surat': list_nama_surat_arab[e.no_surat-1],
             'max_ayat': max_ayat[e.no_surat-1],
         }
         ndb.append(tmp)
@@ -64,18 +71,16 @@ def delete_ayat(request, pk):
 def record(request, no_surat__no_ayat):
     if no_surat__no_ayat == '0':
         no_surat = np.random.randint(low=1, high=114, size=1)[0]
-        no_ayat =  np.random.randint(low=1, high=data_surat.objects.get(no_surat=no_surat).total_ayat, size=1)[0]
+        no_ayat =  np.random.randint(low=1, high=data_surat.objects.get(no_surat=no_surat).jumlah_ayat, size=1)[0]
     else:
         no_surat = int(no_surat__no_ayat.split('__')[0])
         no_ayat = int(no_surat__no_ayat.split('__')[1])
-    list_nama_surat = [i.nama_surat for i in data_surat.objects.all()]
-    max_ayat = [i.total_ayat for i in data_surat.objects.all()]
-    arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
     data = {
         'no_surat': no_surat,
-        'nama_surat': list_nama_surat[no_surat-1],
+        'nama_surat': f'{list_nama_surat_arab[no_surat-1]}   {list_nama_surat_indo[no_surat-1]}',
         'no_ayat': no_ayat,
-        'list_nama_surat': json.dumps(list_nama_surat),
+        'list_nama_surat_arab': json.dumps(list_nama_surat_arab),
+        'list_nama_surat_indo': json.dumps(list_nama_surat_indo),
         'max_ayat': max_ayat,
         'arti': json.dumps(arti),
         'terjemah': arti[f'{no_surat}_{no_ayat}'] + f'  (QS {no_surat} : {no_ayat})',

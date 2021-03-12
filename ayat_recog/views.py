@@ -15,8 +15,9 @@ import io
 
 
 try:
-    list_nama_surat = [i.nama_surat for i in data_surat.objects.all()]
-    max_ayat = [i.total_ayat for i in data_surat.objects.all()]
+    list_nama_surat_arab = [i.nama_surat_arab for i in data_surat.objects.all()]
+    list_nama_surat_indo = [i.nama_surat_indo for i in data_surat.objects.all()]
+    max_ayat = [i.jumlah_ayat for i in data_surat.objects.all()]
     arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
 except:
     pass
@@ -26,7 +27,7 @@ DSQ = Model('deepspeech/output_graph_imams_tusers_v2.pb')
 DSQ.enableExternalScorer('deepspeech/quran.scorer')
 
 # Text Quran Utsmani
-df = pd.read_csv('quran_utsmani_no_basmalah.csv')
+df = pd.read_csv('data/quran_utsmani_no_basmalah.csv')
 quran_dict = {f'{i[0]}_{i[1]}': i[2].split(' ') for i in df.values}
 
 # search Ayat from quran_dict
@@ -49,9 +50,9 @@ def find_ayat(lookup):
 
 
 
-def search(request):
+def cari(request):
     data = {
-        'segment': 'search',
+        'segment': 'cari',
     }
     if request.method == 'POST':
         # audio recognition
@@ -63,48 +64,73 @@ def search(request):
         data = {
             'result': json.dumps(result),
             'prediction': prediction,
-            'list_nama_surat': json.dumps(list_nama_surat),
+            'list_nama_surat_arab': json.dumps(list_nama_surat_arab),
+            'list_nama_surat_indo': json.dumps(list_nama_surat_indo),
             'arti': json.dumps(arti),
-            'segment': 'search',
+            'segment': 'cari',
         }        
         return HttpResponse(json.dumps(data), content_type='application/json')
-    return render(request, 'search.html', data)
+    return render(request, 'cari.html', data)
 
 
 
-def tahfidz(request):
+def hafalan(request):
     no_surat = 1
     no_ayat = 1
     arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
     data = {
         'no_surat': no_surat,
-        'nama_surat': list_nama_surat[no_surat-1],
+        'nama_surat': f'{list_nama_surat_arab[no_surat-1]}   {list_nama_surat_indo[no_surat-1]}',
         'no_ayat': no_ayat,
-        'list_nama_surat': json.dumps(list_nama_surat),
+        'list_nama_surat_arab': json.dumps(list_nama_surat_arab),
+        'list_nama_surat_indo': json.dumps(list_nama_surat_indo),
         'arti': json.dumps(arti),
         'terjemah': arti[f'{no_surat}_{no_ayat}'] + f'  (QS {no_surat} : {no_ayat})',
         'file_img' : f'/static/all_ayat/{no_surat}_{no_ayat}.png',
-        'segment': 'tahfidz',
-    }     
-    return render(request, 'tahfidz.html', data)
+        'segment': 'hafalan',
+    } 
+    if request.method == 'POST':
+        # audio recognition
+        sr, signal = read(request.FILES['file'].file)
+        prediction = DSQ.stt(signal)
+        result = find_ayat(prediction.split(' '))
+        # sorting based on similarity (high --> low)
+        result = dict(sorted(result.items(), key=lambda item: item[1], reverse=True))
+        data = {
+            'result': json.dumps(result),
+            'prediction': prediction,
+        }        
+        return HttpResponse(json.dumps(data), content_type='application/json')    
+    return render(request, 'hafalan.html', data)
 
 
 
-def tajwid(request):
+def bacaan(request):
     no_surat = 1
     no_ayat = 1
-    arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
+    # arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
     data = {
         'no_surat': no_surat,
-        'nama_surat': list_nama_surat[no_surat-1],
+        'nama_surat': f'{list_nama_surat_arab[no_surat-1]}   {list_nama_surat_indo[no_surat-1]}',
         'no_ayat': no_ayat,
-        'list_nama_surat': json.dumps(list_nama_surat),
+        'list_nama_surat_arab': json.dumps(list_nama_surat_arab),
+        'list_nama_surat_indo': json.dumps(list_nama_surat_indo),
         'max_ayat': max_ayat,
-        'arti': json.dumps(arti),
+        # 'arti': json.dumps(arti),
         'terjemah': arti[f'{no_surat}_{no_ayat}'] + f'  (QS {no_surat} : {no_ayat})',
         'file_img' : f'/static/all_ayat/{no_surat}_{no_ayat}.png',
-        'segment': 'tajwid',
-    }     
-    return render(request, 'tajwid.html', data)
+        'quran_dict': json.dumps(quran_dict),
+        'segment': 'bacaan',
+    } 
+    if request.method == 'POST':
+        # audio recognition
+        sr, signal = read(request.FILES['file'].file)
+        prediction = DSQ.stt(signal).split(' ')
+        data = {
+            'prediction': prediction,
+            'segment': 'hafalan',
+        }
+        return HttpResponse(json.dumps(data), content_type='application/json')     
+    return render(request, 'bacaan.html', data)
 
     

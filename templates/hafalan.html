@@ -10,15 +10,15 @@
         <div class="row" style="margin-top: -7%;">
             <div class="col-md-12">
               <div class="card">
-                <div class="card-header card-header-danger">
-                  <h3 class="card-title">Cek Hafalan Per Ayat</h3>
+                <div class="card-header card-header-danger" style="display: inline-flex;">
+                  <h3 id="tipe_mode" class="card-title">Cek Hafalan Per Ayat</h3>
                 </div>
                 <div class="card-body">
-                  <div style="margin-top: 5%;">
 
+                  <div style="margin-top: 0%;">
                     <div class="card-header">
                       <div>
-                        <div data-role="controls" style="margin-top: -3%;">
+                        <div data-role="controls" style="margin-top: 0%;">
                           <button type="button" rel="tooltip" class="btn btn-success btn-round">
                             <i id="icon-rekam" class="material-icons">mic_none</i> Rekam</button>
                         </div>
@@ -66,7 +66,8 @@
 <script src="/static/assets/js/get_wav.js"></script>
 <script>
 // from django database
-var list_nama_surat = {{ list_nama_surat | safe }};
+var list_nama_surat_arab = {{ list_nama_surat_arab | safe }};
+var list_nama_surat_indo = {{ list_nama_surat_indo | safe }};
 var arti = {{ arti | safe }};
 // get translation
 function terjemah() {
@@ -74,6 +75,13 @@ function terjemah() {
     ayat = document.getElementById("ayat").value;
     document.getElementById("arti").innerHTML = arti[no_surat + '_' + ayat] + '  (QS ' + no_surat + ' : ' + ayat + ')';
 }
+// change mode
+$( "#mode_ayat" ).click(function() {
+    document.getElementById("tipe_mode").innerHTML = "Cek Hafalan Per Ayat";
+});
+$( "#mode_surat" ).click(function() {
+    document.getElementById("tipe_mode").innerHTML = "Cek Hafalan Per Surat";
+});
 </script>
 {% endblock javascripts %}
 
