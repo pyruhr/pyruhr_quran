@@ -15,8 +15,7 @@ import io
 
 
 try:
-    list_nama_surat_arab = [i.nama_surat_arab for i in data_surat.objects.all()]
-    list_nama_surat_indo = [i.nama_surat_indo for i in data_surat.objects.all()]
+    list_nama_surat = [f'{i.id}. {i.nama_surat_indo} ({i.nama_surat_arab})' for i in data_surat.objects.all()]
     max_ayat = [i.jumlah_ayat for i in data_surat.objects.all()]
     arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
 except:
@@ -64,8 +63,7 @@ def cari(request):
         data = {
             'result': json.dumps(result),
             'prediction': prediction,
-            'list_nama_surat_arab': json.dumps(list_nama_surat_arab),
-            'list_nama_surat_indo': json.dumps(list_nama_surat_indo),
+            'list_nama_surat': json.dumps(list_nama_surat),
             'arti': json.dumps(arti),
             'segment': 'cari',
         }        
@@ -75,18 +73,10 @@ def cari(request):
 
 
 def hafalan(request):
-    no_surat = 1
-    no_ayat = 1
     arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
     data = {
-        'no_surat': no_surat,
-        'nama_surat': f'{list_nama_surat_arab[no_surat-1]}   {list_nama_surat_indo[no_surat-1]}',
-        'no_ayat': no_ayat,
-        'list_nama_surat_arab': json.dumps(list_nama_surat_arab),
-        'list_nama_surat_indo': json.dumps(list_nama_surat_indo),
+        'list_nama_surat': json.dumps(list_nama_surat),
         'arti': json.dumps(arti),
-        'terjemah': arti[f'{no_surat}_{no_ayat}'] + f'  (QS {no_surat} : {no_ayat})',
-        'file_img' : f'/static/all_ayat/{no_surat}_{no_ayat}.png',
         'segment': 'hafalan',
     } 
     if request.method == 'POST':
@@ -99,6 +89,7 @@ def hafalan(request):
         data = {
             'result': json.dumps(result),
             'prediction': prediction,
+            'segment': 'hafalan',
         }        
         return HttpResponse(json.dumps(data), content_type='application/json')    
     return render(request, 'hafalan.html', data)
@@ -106,19 +97,11 @@ def hafalan(request):
 
 
 def bacaan(request):
-    no_surat = 1
-    no_ayat = 1
     # arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
     data = {
-        'no_surat': no_surat,
-        'nama_surat': f'{list_nama_surat_arab[no_surat-1]}   {list_nama_surat_indo[no_surat-1]}',
-        'no_ayat': no_ayat,
-        'list_nama_surat_arab': json.dumps(list_nama_surat_arab),
-        'list_nama_surat_indo': json.dumps(list_nama_surat_indo),
         'max_ayat': max_ayat,
+        'list_nama_surat': json.dumps(list_nama_surat),
         # 'arti': json.dumps(arti),
-        'terjemah': arti[f'{no_surat}_{no_ayat}'] + f'  (QS {no_surat} : {no_ayat})',
-        'file_img' : f'/static/all_ayat/{no_surat}_{no_ayat}.png',
         'quran_dict': json.dumps(quran_dict),
         'segment': 'bacaan',
     } 
@@ -128,7 +111,7 @@ def bacaan(request):
         prediction = DSQ.stt(signal).split(' ')
         data = {
             'prediction': prediction,
-            'segment': 'hafalan',
+            'segment': 'bacaan',
         }
         return HttpResponse(json.dumps(data), content_type='application/json')     
     return render(request, 'bacaan.html', data)

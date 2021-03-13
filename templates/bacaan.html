@@ -16,30 +16,26 @@
                 <div class="card-body">
                   <div style="margin-top: 3%;">
                     <form>
-                      <div class="row" style="margin-left: 5%;">
+                      <div class="row" style="margin-left: 0%;">
                         <div class="col-md-1">
-                          <div class="form-group">
-                            <label class="bmd-label-floating text-center">No. Surat</label>
-                            <input id="no_surat" type="text" class="form-control text-center" value="{{ no_surat }}">
-                          </div>
                         </div>
+
                         <div class="col-md-2">
                           <div class="form-group">
-                            <label class="bmd-label-floating text-center">Nama Surat</label>
-                            <input id="surat" type="text" class="form-control text-center" value="{{ nama_surat }}" readonly>
+                            <label class="text-center" style="font-size: 12px">Nama Surat</label>
+                            <select id="surat_selection" class="form-control text-center" style="width: 230px; font-size: 16px;"></select>
                           </div>
                         </div>
-                        <div class="col-md-1">
+                        <div class="col-md-1" style="margin-left: 10%;">
                           <div class="form-group">
-                            <label class="bmd-label-floating text-center">Ayat</label>
-                            <input id="ayat" type="text" class="form-control text-center" value="{{ no_ayat }}">
+                            <label class="text-center" style="font-size: 12px">Ayat</label>
+                            <select id="ayat_selection" class="form-control text-center" style="width: 50px; font-size: 16px;"></select>
                           </div>
                         </div>
+
                       </div>
                     </form>
                     <div style="margin-top: -5%; margin-left: 50%;">
-                      <button id="pilih" type="button" rel="tooltip" class="btn btn-info btn-round">
-                        <i class="material-icons">file_download_done</i> Pilih</button>
                       <button id="acak" type="button" rel="tooltip" class="btn btn-info btn-round">
                         <i class="material-icons">swap_horiz</i> Acak</button>
                     </div>
@@ -112,22 +108,51 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 }
 
-// set gambar ayat
-no_surat = document.getElementById("no_surat").value;
-ayat = document.getElementById("ayat").value;
-document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_' + ayat +'.png';
-
 // from django database
 var max_ayat = {{ max_ayat }};
-var list_nama_surat_arab = {{ list_nama_surat_arab | safe }};
-var list_nama_surat_indo = {{ list_nama_surat_indo | safe }};
+var list_nama_surat = {{ list_nama_surat | safe }};
 // var arti = {{ arti | safe }};
 var quran_dict = {{ quran_dict | safe }};
 
+// set surat selection
+var start = document.getElementById('surat_selection');
+for ( i=0; i<114; i++ ) {
+    surat = list_nama_surat[i];
+    newopt = document.createElement('option');
+    newopt.value = surat;
+    newopt.innerHTML = surat;
+    newopt.style="font-size: 16px";
+    start.appendChild(newopt);
+}
+// set ayat selection
+function set_ayat() {
+    // reset DOM
+    let element = document.getElementById("ayat_selection");
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
+    };
+    var start = document.getElementById('ayat_selection');
+    no_surat = list_nama_surat.indexOf(document.getElementById("surat_selection").value) + 1;
+    for ( i=1; i<=max_ayat[no_surat-1]; i++ ) {
+        newopt = document.createElement('option');
+        newopt.value = i;
+        newopt.innerHTML = i;
+        newopt.style="font-size: 16px";
+        start.appendChild(newopt);
+    } 
+};
+set_ayat();
+
+
+// initiate default value (AlFatihah:1)
+document.getElementById("surat_selection").value = list_nama_surat[0];
+document.getElementById("ayat_selection").value = 1;
+document.getElementById("gambar_ayat").src = '/static/all_ayat/1_1.png';
+
 // reset results
 function reset() {
-    no_surat = document.getElementById("no_surat").value;
-    ayat = document.getElementById("ayat").value;
+    no_surat = list_nama_surat.indexOf(document.getElementById("surat_selection").value) + 1;
+    ayat = document.getElementById("ayat_selection").value;
     document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_' + ayat +'.png';
     document.getElementsByClassName('prediction')[0].innerHTML = "";
     document.getElementsByClassName('prediction')[1].innerHTML = "";
@@ -135,6 +160,7 @@ function reset() {
     document.getElementsByClassName('target')[1].innerHTML = "";
     // show "ULANGI" button
     document.getElementById("ulangi").style.display = "none"
+    return [no_surat, ayat]
 }
 $( "#ulangi" ).click(function() {
     reset();
@@ -142,59 +168,54 @@ $( "#ulangi" ).click(function() {
 
 // get random ayat
 $( "#acak" ).click(function() {
-    reset();
+    ret = reset();
     no_surat = getRandomInt(1, 115);
     ayat = getRandomInt(1, max_ayat[no_surat-1]+1);
-    document.getElementById("no_surat").value = no_surat;
-    document.getElementById("surat").value = list_nama_surat_arab[no_surat-1] + ' ' + list_nama_surat_indo[no_surat-1];
-    document.getElementById("ayat").value = ayat;
+    document.getElementById("surat_selection").value = list_nama_surat[no_surat-1];
+    set_ayat();
+    document.getElementById("ayat_selection").value = ayat;
     document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_' + ayat +'.png';
     terjemah();
 });
 
 // get ayat based on the chosen values
-$( "#pilih" ).click(function() {
-    reset();
-    no_surat = document.getElementById("no_surat").value;
-    nama_surat = list_nama_surat_arab[parseInt(no_surat)-1];
-    ayat = document.getElementById("ayat").value;
-    ayat_terakhir = max_ayat[parseInt(no_surat)-1];
-    if (ayat > ayat_terakhir) {
-        alert('jumlah ayat pada surat ' + nama_surat + ' hanya ' + ayat_terakhir);
-        ayat = ayat_terakhir;
-        document.getElementById("ayat").value = ayat;
-    }
-    if (parseInt(no_surat) < 1 || parseInt(no_surat) > 114) {
-        alert('surat tidak ditemukan');
-        document.getElementById("no_surat").value = 1;
-        document.getElementById("ayat").value = 1;
-        no_surat = 1;
-        ayat = 1;
-    }
-    document.getElementById("surat").value = list_nama_surat_arab[no_surat-1] + ' ' + list_nama_surat_indo[no_surat-1];
+$( "#surat_selection" ).change(function() {
+    ret = reset();
+    set_ayat();
+    no_surat = parseInt(ret[0]);
+    document.getElementById("surat_selection").value = list_nama_surat[no_surat-1];
+    document.getElementById("ayat_selection").value = 1;
+    document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_1.png';
+    terjemah();
+});
+$( "#ayat_selection" ).change(function() {
+    ret = reset();
+    no_surat = parseInt(ret[0]);
+    ayat = parseInt(ret[1]);
     document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_' + ayat +'.png';
     terjemah();
 });
 
+
 // get next ayat
 $( "#next" ).click(function() {
-    reset();
-    no_surat = document.getElementById("no_surat").value;
-    ayat = document.getElementById("ayat").value;
-    if (ayat == max_ayat[parseInt(no_surat)-1]) {
-        no_surat = parseInt(no_surat) + 1;
+    ret = reset();
+    no_surat = parseInt(ret[0]);
+    ayat = parseInt(ret[1]);
+    if (ayat == max_ayat[no_surat-1]) {
+        no_surat = no_surat + 1;
         ayat = 1;
     }
     else {
-        ayat = parseInt(ayat) + 1;
+        ayat = ayat + 1;
     }
     if (no_surat == 115) {
         alert('tidak ada ayat');
     }
     else {
-        document.getElementById("no_surat").value = no_surat;
-        document.getElementById("surat").value = list_nama_surat_arab[no_surat-1] + ' ' + list_nama_surat_indo[no_surat-1];
-        document.getElementById("ayat").value = ayat;
+        document.getElementById("surat_selection").value = list_nama_surat[no_surat-1];
+        set_ayat();
+        document.getElementById("ayat_selection").value = ayat;
         document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_' + ayat +'.png';
     }
     terjemah();
@@ -202,23 +223,23 @@ $( "#next" ).click(function() {
 
 // get previous ayat
 $( "#previous" ).click(function() {
-    reset();
-    no_surat = document.getElementById("no_surat").value;
-    ayat = document.getElementById("ayat").value;
+    ret = reset();
+    no_surat = parseInt(ret[0]);
+    ayat = parseInt(ret[1]);
     if (ayat == 1) {
-        no_surat = parseInt(no_surat) - 1;
-        ayat = max_ayat[parseInt(no_surat)-1];
+        no_surat = no_surat - 1;
+        ayat = max_ayat[no_surat-1];
     }
     else {
-        ayat = parseInt(ayat) - 1;
+        ayat = ayat - 1;
     }
     if (no_surat == 0) {
         alert('tidak ada ayat');
     }
     else {
-        document.getElementById("no_surat").value = no_surat;
-        document.getElementById("surat").value = list_nama_surat_arab[no_surat-1] + ' ' + list_nama_surat_indo[no_surat-1];
-        document.getElementById("ayat").value = ayat;
+        document.getElementById("surat_selection").value = list_nama_surat[no_surat-1];
+        set_ayat();
+        document.getElementById("ayat_selection").value = ayat;
         document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_' + ayat +'.png';
     }
     terjemah();
@@ -226,8 +247,8 @@ $( "#previous" ).click(function() {
 
 // get translation
 function terjemah() {
-    no_surat = document.getElementById("no_surat").value;
-    ayat = document.getElementById("ayat").value;
+    no_surat = document.getElementById("surat_selection").value;
+    ayat = document.getElementById("ayat_selection").value;
     // document.getElementById("arti").innerHTML = arti[no_surat + '_' + ayat] + '  (QS ' + no_surat + ' : ' + ayat + ')';
 }
 
@@ -243,8 +264,8 @@ function upload(blob) {
       contentType: false,
       processData: false,
       success: function(data) {
-        no_surat = document.getElementById("no_surat").value;
-        ayat = document.getElementById("ayat").value;
+        no_surat = document.getElementById("surat_selection").value.split('.')[0];
+        ayat = document.getElementById("ayat_selection").value;
         target = quran_dict[no_surat + '_' + ayat];
         // highlight missing words in target ayat
         text_target = '';

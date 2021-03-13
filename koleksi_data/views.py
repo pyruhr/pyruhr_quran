@@ -8,21 +8,22 @@ from django.shortcuts import render, redirect
 from .models import rekaman, data_surat, terjemah
 from django.contrib.auth.models import User
 from django.db.models import Sum
+from datetime import datetime
 from time import time
 import numpy as np
+import pandas as pd
 import json
 import os
 
 
 
 try:
+    list_nama_surat = [f'{i.id}. {i.nama_surat_indo} ({i.nama_surat_arab})' for i in data_surat.objects.all()]
     list_nama_surat_arab = [i.nama_surat_arab for i in data_surat.objects.all()]
-    list_nama_surat_indo = [i.nama_surat_indo for i in data_surat.objects.all()]
     max_ayat = [i.jumlah_ayat for i in data_surat.objects.all()]
     arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
 except:
     pass
-
 
 
 @login_required(login_url="/login/")
@@ -70,21 +71,17 @@ def delete_ayat(request, pk):
 @login_required(login_url="/login/")
 def record(request, no_surat__no_ayat):
     if no_surat__no_ayat == '0':
-        no_surat = np.random.randint(low=1, high=114, size=1)[0]
-        no_ayat =  np.random.randint(low=1, high=data_surat.objects.get(no_surat=no_surat).jumlah_ayat, size=1)[0]
+        no_surat, no_ayat = 1, 1
     else:
         no_surat = int(no_surat__no_ayat.split('__')[0])
         no_ayat = int(no_surat__no_ayat.split('__')[1])
+    arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
     data = {
         'no_surat': no_surat,
-        'nama_surat': f'{list_nama_surat_arab[no_surat-1]}   {list_nama_surat_indo[no_surat-1]}',
         'no_ayat': no_ayat,
-        'list_nama_surat_arab': json.dumps(list_nama_surat_arab),
-        'list_nama_surat_indo': json.dumps(list_nama_surat_indo),
         'max_ayat': max_ayat,
+        'list_nama_surat': json.dumps(list_nama_surat),
         'arti': json.dumps(arti),
-        'terjemah': arti[f'{no_surat}_{no_ayat}'] + f'  (QS {no_surat} : {no_ayat})',
-        'file_img' : f'/static/all_ayat/{no_surat}_{no_ayat}.png',
         'segment': 'record',
     }     
     return render(request, 'record.html', data)
@@ -97,18 +94,22 @@ def upload(request):
         filePath = 'audio/' + str(time()).replace('.','')[:12] + "".join([chars[i] for j in range(8) for i in np.random.randint(0,len(chars),1)]) + '.wav'
         with open(filePath, 'wb') as file:
             file.write(request.body)
-            data = request.headers['info'].split('_')
-            b = User.objects.get(id=request.user.id)
-            size = os.path.getsize(filePath)//1000
-            try:
-                # if data for particular "surat" & "ayat" already exist
-                c = b.rekaman_set.get(no_surat=data[1], no_ayat=data[2])
-                c.ukuran = size
-                c.filepath = filePath
-                c.save()
-            except:
-                # new entry
-                b.rekaman_set.create(no_surat=data[1], no_ayat=data[2], ukuran=size, filepath=filePath)
+        data = request.headers['info'].split('_')
+        b = User.objects.get(id=request.user.id)
+        size = os.path.getsize(filePath)//1000
+        try:
+            # if data for particular "surat" & "ayat" already exist
+            c = b.rekaman_set.get(no_surat=data[0], no_ayat=data[1])
+            # delete old wav
+            os.system(f'rm -f {c.filepath}')
+            # update values
+            c.ukuran = size
+            c.filepath = filePath
+            c.waktu = datetime.now()
+            c.save()
+        except:
+            # new entry
+            b.rekaman_set.create(no_surat=data[0], no_ayat=data[1], ukuran=size, filepath=filePath)
         return redirect('history')
 
 
