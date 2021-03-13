@@ -16,16 +16,16 @@
                 <div class="card-body">
                   <div class="table-responsive">
 
-<!--                     <div class="btn-group">
+                    <div class="btn-group">
                       <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Urutkan Berdasarkan
                       </button>
                       <div class="dropdown-menu" sytle="align: right">
-                        <option id="mode_ayat" class="dropdown-item" value="Ayat">Surat & Ayat</a>
-                        <option id="mode_surat" class="dropdown-item" value="Surat">Ukuran File</a>
-                        <option id="mode_surat" class="dropdown-item" value="Surat">Waktu Rekaman</a>
+                        <option class="dropdown-item" onclick="location.href='{% url 'history' 'surat_ayat' %}'">Surat & Ayat</a>
+                        <option class="dropdown-item" onclick="location.href='{% url 'history' 'ukuran' %}'">Ukuran File</a>
+                        <option class="dropdown-item" onclick="location.href='{% url 'history' 'waktu' %}'">Waktu Rekaman</a>
                       </div>
-                    </div> -->
+                    </div>
 
                     <table class="table">
                       <thead class=" text-info">

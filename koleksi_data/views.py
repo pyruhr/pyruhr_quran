@@ -27,8 +27,14 @@ except:
 
 
 @login_required(login_url="/login/")
-def history(request):
-    db = rekaman.objects.filter(user=request.user.id).order_by('no_surat', 'no_ayat')
+def history(request, var):
+    # var: variable to sort data (ayat, ukuran, waktu)
+    if var == 'surat_ayat':
+        db = rekaman.objects.filter(user=request.user.id).order_by('no_surat', 'no_ayat')
+    elif var == 'ukuran':
+        db = rekaman.objects.filter(user=request.user.id).order_by('-ukuran')
+    elif var == 'waktu':
+        db = rekaman.objects.filter(user=request.user.id).order_by('-waktu')
     ndb = []
     for e in db:
         tmp = {
@@ -65,7 +71,7 @@ def delete_ayat(request, pk):
         filePath = dat.filepath
         dat.delete()
         os.system(f'rm -f {filePath}')
-    return redirect('history')
+    return redirect('history', 'surat_ayat')
 
 
 @login_required(login_url="/login/")
@@ -110,7 +116,7 @@ def upload(request):
         except:
             # new entry
             b.rekaman_set.create(no_surat=data[0], no_ayat=data[1], ukuran=size, filepath=filePath)
-        return redirect('history')
+        return redirect('history', 'surat_ayat')
 
 
 
