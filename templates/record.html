@@ -130,13 +130,13 @@ function set_ayat() {
         start.appendChild(newopt);
     } 
 };
-set_ayat();
 
 
 // initiate default value (AlFatihah:1)
 no_surat = {{ no_surat }}
 no_ayat = {{ no_ayat }}
 document.getElementById("surat_selection").value = list_nama_surat[no_surat-1];
+set_ayat();
 document.getElementById("ayat_selection").value = no_ayat;
 document.getElementById("gambar_ayat").src = '/static/all_ayat/' + no_surat + '_' + no_ayat + '.png';
 document.getElementById("arti").innerHTML = arti[no_surat + '_' + no_ayat];
