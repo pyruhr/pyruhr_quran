@@ -11,13 +11,15 @@
                 <div class="card-header card-header-info">
                   <h3 class="card-title">Rekaman Bacaan Al-Quran</h3>
                   <h4 class="card-title">{{ total_ayat }} Ayat ({{ total_ukuran }} MB)</h4>
-<!--                   <h4 class="card-title">Total Surat: {{ total_surat }}</h4> -->
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
 
                     <div class="btn-group">
-                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <div class="col-md-2">
+                          <select id="surat_selection" class="form-control text-center" style="width: 230px; font-size: 16px;"></select>
+                      </div>
+                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left: 55%;">
                         Urutkan Berdasarkan
                       </button>
                       <div class="dropdown-menu" sytle="align: right">
@@ -79,8 +81,31 @@
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script>
+// audio player
 function play_single_sound(no_surat, no_ayat) {
   document.getElementById(no_surat+'_'+no_ayat).play();
 }
+// set surat selection
+var list_nama_surat = {{ list_nama_surat | safe }};
+var start = document.getElementById('surat_selection');
+newopt = document.createElement('option');
+newopt.value = 'surat_ayat';
+newopt.innerHTML = 'Tampilkan Semua Ayat';
+newopt.style = "font-size: 16px";
+start.appendChild(newopt);
+for ( i=0; i<114; i++ ) {
+    surat = list_nama_surat[i];
+    newopt = document.createElement('option');
+    newopt.value = surat;
+    newopt.innerHTML = surat;
+    newopt.style = "font-size: 16px";
+    start.appendChild(newopt);
+}
+document.getElementById('surat_selection').value = "{{ selected_surat | safe }}";
+// update table based on the selected surat
+$( "#surat_selection" ).change(function() {
+    no_surat = list_nama_surat.indexOf(document.getElementById("surat_selection").value) + 1;
+    window.location.href = no_surat;
+});
 </script>
 {% endblock javascripts %}

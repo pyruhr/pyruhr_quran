@@ -73,25 +73,23 @@ def cari(request):
 
 
 def hafalan(request):
-    arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
+    # arti = {f'{i.no_surat}_{i.no_ayat}':i.terjemah for i in terjemah.objects.all()}
     data = {
+        'max_ayat': max_ayat,
         'list_nama_surat': json.dumps(list_nama_surat),
-        'arti': json.dumps(arti),
+        # 'arti': json.dumps(arti),
+        'quran_dict': json.dumps(quran_dict),
         'segment': 'hafalan',
     } 
     if request.method == 'POST':
         # audio recognition
         sr, signal = read(request.FILES['file'].file)
-        prediction = DSQ.stt(signal)
-        result = find_ayat(prediction.split(' '))
-        # sorting based on similarity (high --> low)
-        result = dict(sorted(result.items(), key=lambda item: item[1], reverse=True))
+        prediction = DSQ.stt(signal).split(' ')
         data = {
-            'result': json.dumps(result),
             'prediction': prediction,
             'segment': 'hafalan',
-        }        
-        return HttpResponse(json.dumps(data), content_type='application/json')    
+        }
+        return HttpResponse(json.dumps(data), content_type='application/json')     
     return render(request, 'hafalan.html', data)
 
 

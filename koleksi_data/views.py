@@ -29,12 +29,13 @@ except:
 @login_required(login_url="/login/")
 def history(request, var):
     # var: variable to sort data (ayat, ukuran, waktu)
-    if var == 'surat_ayat':
-        db = rekaman.objects.filter(user=request.user.id).order_by('no_surat', 'no_ayat')
-    elif var == 'ukuran':
+    db = rekaman.objects.filter(user=request.user.id).order_by('no_surat', 'no_ayat')
+    if var == 'ukuran':
         db = rekaman.objects.filter(user=request.user.id).order_by('-ukuran')
     elif var == 'waktu':
         db = rekaman.objects.filter(user=request.user.id).order_by('-waktu')
+    elif var in np.arange(1,115).astype('str'):
+        db = rekaman.objects.filter(user=request.user.id, no_surat=int(var))        
     ndb = []
     for e in db:
         tmp = {
@@ -56,10 +57,16 @@ def history(request, var):
     data = {
         'db': ndb,
         'total_ayat': db.count(),
-        'total_surat': db.order_by().values('no_surat').distinct().count(),
+        'list_nama_surat': json.dumps(list_nama_surat),
+        # 'total_surat': db.order_by().values('no_surat').distinct().count(),
         'total_ukuran': total_size,
         'segment': 'history',
     }
+    # get selected surat (filter option)
+    if var in np.arange(1,115).astype('str'):
+        data.update({'selected_surat': list_nama_surat[int(var)-1]})
+    else:
+        data.update({'selected_surat': 'surat_ayat'})
     return render(request, 'history.html', data)
 
 
